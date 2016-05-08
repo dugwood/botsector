@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html ng-app="botsectorApp">
+	<head>
+		<title>BotSector</title>
+		<meta charset="utf-8"/>
+		<link rel="stylesheet" href="./static/app.css"/>
+		<link rel="stylesheet" href="./static/c3.css"/>
+		<script type="text/javascript" src="./static/angular.min.js"></script>
+		<script type="text/javascript" src="./static/app.js"></script>
+		<script type="text/javascript" src="./static/d3.js"></script>
+		<script type="text/javascript" src="./static/c3.js"></script>
+	</head>
+	<body ng-controller="FilterController">
+		<div id="left-menu">
+			<fieldset>
+				<legend>Year</legend>
+				<ul class="dates">
+					<li ng-repeat="y in years" ng-class="{active: y === startYear}"><a ng-click="filter('year', y);">{{ y }}</a></li>
+					<li class="last"></li>
+				</ul>
+			</fieldset>
+			<fieldset>
+				<legend>Month</legend>
+				<ul class="dates">
+					<li ng-repeat="m in months" ng-class="{active: m === startMonth}"><a ng-click="filter('month', m);">{{ m }}</a></li>
+					<li class="last"></li>
+				</ul>
+			</fieldset>
+			<fieldset>
+				<legend>Domains</legend>
+				<ul class="entries">
+					<li ng-repeat="d in domains| limitTo:domainsLimit" ng-if="d.id === 0 || d.id === domain || domain === 0" ng-class="{active: d.id === domain}">
+						<a ng-click="filter('domain', d.id);">{{ d.domain }} ({{ d.hits|formatMultiple }} hits)</a>
+					</li>
+					<li ng-if="domains.length > defaultLimit">
+						<a ng-click="more('domain');"><span ng-if="domainsLimit === defaultLimit">More...</span><span ng-if="domainsLimit !== defaultLimit">Less...</span></a>
+					</li>
+				</ul>
+			</fieldset>
+			<fieldset ng-if="domain > 0">
+				<legend>Directories</legend>
+				<ul class="entries">
+					<li ng-repeat="d in directories| limitTo:directoriesLimit" ng-if="d.id === 0 || d.id === directory || directory === 0" ng-class="{active: d.id === directory}">
+						<a ng-click="filter('directory', d.id);">{{ d.directory.indexOf('/botsector-') === 0 ? '**' + d.directory.substring(11).replace('-', ' ') + '**' : d.directory }} ({{ d.hits|formatMultiple }} hits)</a>
+					</li>
+					<li ng-if="directories.length > defaultLimit">
+						<a ng-click="more('directory');"><span ng-if="directoriesLimit === defaultLimit">More...</span><span ng-if="directoriesLimit !== defaultLimit">Less...</span></a>
+					</li>
+				</ul>
+			</fieldset>
+			<fieldset>
+				<legend>Crawlers</legend>
+				<ul class="entries">
+					<li ng-repeat="c in crawlers| limitTo:crawlersLimit" ng-if="c.id === 0 || crawler > 0 && c.id === crawler || crawler < 0 || crawler === 0" ng-class="{active: c.id === crawler, striked: crawler < 0 && -c.id === crawler}">
+						<a ng-click="filter('crawler', c.id);">{{ c.name }} ({{ c.hits|formatMultiple }} hits)</a>
+						<a ng-click="filter('crawler', -c.id)" ng-if="c.ignore === true">&times;</a>
+					</li>
+					<li ng-if="crawlers.length > defaultLimit">
+						<a ng-click="more('crawler');"><span ng-if="crawlersLimit === defaultLimit">More...</span><span ng-if="crawlersLimit !== defaultLimit">Less...</span></a>
+					</li>
+				</ul>
+			</fieldset>
+			<fieldset>
+				<legend>Types</legend>
+				<ul class="entries">
+					<li ng-repeat="t in types" ng-if="t.id === 0 || t.id === type || type === 0 && t.hits > 0" ng-class="{active: t.id === type}">
+						<a ng-click="filter('type', t.id);">{{ t.name }} ({{ t.hits|formatMultiple }} hits)</a>
+					</li>
+				</ul>
+			</fieldset>
+		</div>
+		<div id="main-content">
+			<div id="parsing" ng-if="parser.status !== 'done'">
+				<span ng-if="parser.status !== 'waiting'">
+					{{ parser.status }} <strong ng-if="parser.status === 'parsing'">{{ parser.parsed }} / {{ parser.left }} (last: {{ parser.time|formatTime }}, eta: {{ parser.eta|formatTime }})</strong>
+				</span>
+				<span ng-if="parser.status === 'waiting'">
+					Another parsing already in progress...
+				</span>
+			</div>
+			<ul id="errors" ng-class="{visible: errors.length > 0}">
+				<li><a ng-click="errors = [];">&times;</a></li>
+				<li ng-repeat="e in errors">
+					{{ e.error }}
+				</li>
+			</ul>
+			Top bots: by hits
+			<div id="chart-topBots"></div>
+			File types: by hits
+			<div id="chart-fileTypes"></div>
+			Bots vs browsers: by hits
+			<div id="chart-botsVsBrowsersHits"></div>
+			Bots vs browsers: by bandwidth (MB)
+			<div id="chart-botsVsBrowsersBandwidth"></div>
+		</div>
+	</body>
+</html>

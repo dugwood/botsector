@@ -1,0 +1,87 @@
+#left-menu {
+	float:left;
+	width:300px;
+}
+#left-menu fieldset {
+	margin:5px 0;
+	padding:4px;
+	border:1px solid #aaf;
+}
+#left-menu legend {
+	border:1px solid #aaf;
+	background-color:#ddf;
+}
+#left-menu a {
+	cursor:pointer;
+}
+#left-menu ul {
+	margin:0 0 10px;
+	padding:0;
+}
+#left-menu ul li {
+	list-style-type: none;
+}
+#left-menu ul.dates li.active {
+	background-color:#888;
+}
+#left-menu ul.dates li.active a {
+	color:#fff;
+	font-weight:bold;
+}
+#left-menu ul.dates li {
+	margin-right:3px;
+	padding:0 2px;
+	border:1px solid #888;
+	background-color:#eee;
+}
+#left-menu ul.dates li {
+	float:left;
+}
+#left-menu ul.dates li.last {
+	border:none;
+	background-color:transparent;
+	float:none;
+	clear:left;
+	font-size:0;
+	line-height:0;
+}
+#left-menu ul.entries li.active a {
+	font-weight:bold;
+}
+#left-menu ul.entries li.striked {
+	text-decoration: line-through;
+}
+
+#main-content {
+	margin-left:310px;
+}
+
+#errors {
+	display:none;
+	border:1px solid #f00;
+	background-color:#fee;
+	padding:5px 10px;
+}
+#errors.visible {
+	display:block;
+}
+#errors li {
+	color:#f00;
+	list-style-type: none;
+}
+#errors li:first-child {
+	font-size:2em;
+	float:right;
+	padding-right:10px;
+}
+
+#parsing {
+	text-align:right;
+	padding:2px;
+}
+#parsing span {
+	padding:2px 5px;
+	border:1px solid #060;
+	background-color:#efe;
+	color:#060;
+}

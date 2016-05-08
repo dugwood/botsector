@@ -2,6 +2,19 @@
 
 See <http://www.dugwood.com/botsector/index.html>.
 
+## Installation
+- clone the github repo:
+```
+git clone https://github.com/dugwood/botsector.git
+```
+- copy the config/config.sample.ini.php to config/config.ini.php
+- edit the config/config.ini.php to suit your needs
+- execute the SQL script below in a (new) database
+- point to botsector/index.php
+
+
+## Database schema
+
 Current database schema (MySQL InnoDB) :
 ```sql
 --

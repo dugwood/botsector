@@ -21,21 +21,17 @@ class Config
 			header('Content-Type: text/html; charset=utf-8');
 		}
 		ini_set('display_errors', 0);
+		$configFile = __DIR__.'/../config/config.ini.php';
 		if (defined('DEV_SERVER') && DEV_SERVER === true)
 		{
 			ini_set('display_errors', 1);
 			error_reporting(E_ALL | E_STRICT);
-			$configFile = __DIR__.'/../../config/dev.ini.php';
 			self::loadClass('Debug_Time');
 			self::loadClass('Debug_RegExp');
 		}
-		elseif ($_SERVER['SERVER_NAME'] === 'botsector.dugwood.com')
+		elseif (isset($_SERVER['BOTSECTORDEMO']))
 		{
 			$configFile = __DIR__.'/../../config/demo.ini.php';
-		}
-		else
-		{
-			$configFile = __DIR__.'/../config/config.ini.php';
 		}
 		self::$config = parse_ini_file($configFile, true);
 

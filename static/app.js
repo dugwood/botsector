@@ -347,6 +347,8 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 				}
 			});
 		};
+		/* Allow the data to be shown even if there's some parsing going on */
+		$scope.update();
 		$scope.parse();
 
 		$scope.formatNumber = function (number) {

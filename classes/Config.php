@@ -29,16 +29,9 @@ class Config
 			self::loadClass('Debug_Time');
 			self::loadClass('Debug_RegExp');
 		}
-		elseif (substr($_SERVER['SERVER_NAME'], -11) === 'dugwood.com')
+		elseif ($_SERVER['SERVER_NAME'] === 'botsector.dugwood.com')
 		{
-			if (preg_match('~^homesector\d+\.dugwood\.com$~D', $_SERVER['SERVER_NAME']) !== 1)
-			{
-				$configFile = __DIR__.'/../../config/demo.ini.php';
-			}
-			else
-			{
-				$configFile = __DIR__.'/../../config/prod.ini.php';
-			}
+			$configFile = __DIR__.'/../../config/demo.ini.php';
 		}
 		else
 		{

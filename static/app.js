@@ -61,6 +61,18 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 
 		$scope.graphs = {topBots: true, fileTypes: true, botsVsBrowsersHits: true, botsVsBrowsersBandwidth: true};
 		$scope.charts = [];
+		$scope.loaders = {
+			years: true,
+			months: true,
+			domains: false,
+			directories: false,
+			crawlers: false,
+			types: false,
+			topBots: false,
+			fileTypes: false,
+			botsVsBrowserHits: false,
+			botsVsBrowsersBandwidth: false
+		}
 
 		$scope.negativeFilter = false;
 
@@ -84,6 +96,7 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 
 		/* Get list of years/months */
 		$http.get('./dispatcher.php?action=years').success(function (data) {
+			$scope.loaders.years = false;
 			if ($scope.check(data))
 			{
 				$scope.years = data;
@@ -104,6 +117,7 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 					}
 				}
 				$http.get('./dispatcher.php?action=months&year=' + $scope.startYear).success(function (data) {
+					$scope.loaders.months = false;
 					if ($scope.check(data))
 					{
 						$scope.months = data;
@@ -131,7 +145,9 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 		/* Update lists of entries */
 		$scope.update = function () {
 			var query = '&year=' + $scope.startYear + '&month=' + $scope.startMonth + '&domain=' + $scope.domain + '&directory=' + $scope.directory + '&crawler=' + $scope.crawler + '&type=' + $scope.type;
+			$scope.loaders.domains = true;
 			$http.get('./dispatcher.php?action=domains' + query).success(function (data) {
+				$scope.loaders.domains = false;
 				if ($scope.check(data))
 				{
 					$scope.domains = data;
@@ -139,7 +155,9 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 			});
 			if ($scope.domain)
 			{
+				$scope.loaders.directories = true;
 				$http.get('./dispatcher.php?action=directories' + query).success(function (data) {
+					$scope.loaders.directories = false;
 					if ($scope.check(data))
 					{
 						$scope.directories = data;
@@ -150,13 +168,17 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 			{
 				$scope.directories = [];
 			}
+			$scope.loaders.crawlers = true;
 			$http.get('./dispatcher.php?action=crawlers' + query).success(function (data) {
+				$scope.loaders.crawlers = false;
 				if ($scope.check(data))
 				{
 					$scope.crawlers = data;
 				}
 			});
+			$scope.loaders.types = true;
 			$http.get('./dispatcher.php?action=types' + query).success(function (data) {
+				$scope.loaders.types = false;
 				if ($scope.check(data))
 				{
 					$scope.types = data;
@@ -164,10 +186,12 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 			});
 			for (var graph in $scope.graphs)
 			{
+				$scope.loaders[graph] = true;
 				$http.get('./dispatcher.php?action=graph&graph=' + graph + query).success(function (data) {
 					if ($scope.check(data))
 					{
 						$scope.redraw(data);
+						$scope.loaders[data.chart] = false;
 					}
 				});
 			}
@@ -336,7 +360,11 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 					else if (data.status === 'done')
 					{
 						$scope.parser.status = 'done';
-						$scope.update();
+						/* Only if we have parsed at least one file */
+						if ($scope.parser.parsed)
+						{
+							$scope.update();
+						}
 					}
 					else if (data.status === 'waiting')
 					{

@@ -13,21 +13,21 @@
 	<body ng-controller="FilterController">
 		<div id="left-menu">
 			<fieldset>
-				<legend>Years</legend>
+				<legend>Years<span class="loader" ng-if="loaders.years === true"></span></legend>
 				<ul class="dates">
 					<li ng-repeat="y in years" ng-class="{active: y === startYear}"><a ng-click="filter('year', y);">{{ y }}</a></li>
 					<li class="last"></li>
 				</ul>
 			</fieldset>
 			<fieldset>
-				<legend>Months</legend>
+				<legend>Months<span class="loader" ng-if="loaders.months === true"></span></legend>
 				<ul class="dates">
 					<li ng-repeat="m in months" ng-class="{active: m === startMonth}"><a ng-click="filter('month', m);">{{ m }}</a></li>
 					<li class="last"></li>
 				</ul>
 			</fieldset>
 			<fieldset>
-				<legend>Domains</legend>
+				<legend>Domains<span class="loader" ng-if="loaders.domains === true"></span></legend>
 				<ul class="entries">
 					<li ng-repeat="d in domains| limitTo:domainsLimit" ng-if="d.id === 0 || d.id === domain || domain === 0" ng-class="{active: d.id === domain}">
 						<a ng-click="filter('domain', d.id);" title="{{ d.domain }}">{{ d.domain }}</a><code title="{{ d.hits }} hits">{{ d.hits|formatMultiple }}</code>
@@ -38,7 +38,7 @@
 				</ul>
 			</fieldset>
 			<fieldset ng-if="domain > 0">
-				<legend>Directories</legend>
+				<legend>Directories<span class="loader" ng-if="loaders.directories === true"></span></legend>
 				<ul class="entries">
 					<li ng-repeat="d in directories| limitTo:directoriesLimit" ng-if="d.id === 0 || d.id === directory || directory === 0" ng-class="{active: d.id === directory}">
 						<a ng-click="filter('directory', d.id);" title="{{ d.directory }}">{{ d.directory.indexOf('/botsector-') === 0 ? '**' + d.directory.substring(11).replace('-', ' ') + '**' : d.directory }}</a><code title="{{ d.hits }} hits">{{ d.hits|formatMultiple }}</code>
@@ -49,7 +49,7 @@
 				</ul>
 			</fieldset>
 			<fieldset>
-				<legend>Crawlers</legend>
+				<legend>Crawlers<span class="loader" ng-if="loaders.crawlers === true"></span></legend>
 				<ul class="entries">
 					<li ng-repeat="c in crawlers| limitTo:crawlersLimit" ng-if="c.id === 0 || crawler > 0 && c.id === crawler || crawler < 0 || crawler === 0" ng-class="{active: c.id === crawler, striked: crawler < 0 && -c.id === crawler}">
 						<a ng-click="filter('crawler', c.id);" title="{{ c.name }}">{{ c.name }}<span ng-click="filter('negative')" ng-if="c.ignore === true"> &times;</span></a><code title="{{ c.hits }} hits">{{ c.hits|formatMultiple }}</code>
@@ -60,7 +60,7 @@
 				</ul>
 			</fieldset>
 			<fieldset>
-				<legend>Types</legend>
+				<legend>Types<span class="loader" ng-if="loaders.types === true"></span></legend>
 				<ul class="entries">
 					<li ng-repeat="t in types" ng-if="t.id === 0 || t.id === type || type === 0 && t.hits > 0" ng-class="{active: t.id === type}">
 						<a ng-click="filter('type', t.id);" title="{{ t.name }}">{{ t.name }}</a><code title="{{ t.hits }} hits">{{ t.hits|formatMultiple }}</code>
@@ -84,19 +84,19 @@
 				</li>
 			</ul>
 			<fieldset>
-				<legend>Top bots: by hits</legend>
+				<legend>Top bots: by hits<span class="loader" ng-if="loaders.topBots === true"></span></legend>
 				<div id="chart-topBots"></div>
 			</fieldset>
 			<fieldset>
-				<legend>File types: by hits</legend>
+				<legend>File types: by hits<span class="loader" ng-if="loaders.fileTypes === true"></span></legend>
 				<div id="chart-fileTypes"></div>
 			</fieldset>
 			<fieldset>
-				<legend>Bots vs browsers: by hits</legend>
+				<legend>Bots vs browsers: by hits<span class="loader" ng-if="loaders.botsVsBrowsersHits === true"></span></legend>
 				<div id="chart-botsVsBrowsersHits"></div>
 			</fieldset>
 			<fieldset>
-				<legend>Bots vs browsers: by bandwidth (MB)</legend>
+				<legend>Bots vs browsers: by bandwidth (MB)<span class="loader" ng-if="loaders.botsVsBrowsersBandwidth === true"></span></legend>
 				<div id="chart-botsVsBrowsersBandwidth"></div>
 			</fieldset>
 		</div>

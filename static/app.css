@@ -113,3 +113,11 @@
 	background-color:#efe;
 	color:#060;
 }
+span.loader {
+	display:inline-block;
+	width:18px;
+	height:18px;
+	margin-left:8px;
+	background:url(./loading.io.gif) center center no-repeat;
+	vertical-align:middle;
+}

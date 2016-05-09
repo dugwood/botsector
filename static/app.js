@@ -130,7 +130,7 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 
 		/* Update lists of entries */
 		$scope.update = function () {
-			var query = '&year=' + $scope.startYear + '&domain=' + $scope.domain + '&directory=' + $scope.directory + '&crawler=' + $scope.crawler + '&type=' + $scope.type;
+			var query = '&year=' + $scope.startYear + '&month=' + $scope.startMonth + '&domain=' + $scope.domain + '&directory=' + $scope.directory + '&crawler=' + $scope.crawler + '&type=' + $scope.type;
 			$http.get('./dispatcher.php?action=domains' + query).success(function (data) {
 				if ($scope.check(data))
 				{
@@ -361,8 +361,4 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 		/* Allow the data to be shown even if there's some parsing going on */
 		$scope.update();
 		$scope.parse();
-
-		$scope.formatNumber = function (number) {
-			console.log(number);
-		};
 	}]);

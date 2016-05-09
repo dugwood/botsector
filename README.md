@@ -2,9 +2,6 @@
 
 See <http://www.dugwood.com/botsector/index.html>.
 
-## Thanks
-- d3 <https://d3js.org/> and c3 <http://c3js.org/> for Javascript-based chart library
-
 ## Installation
 - clone the github repo:
 ```

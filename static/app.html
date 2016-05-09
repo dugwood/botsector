@@ -13,14 +13,14 @@
 	<body ng-controller="FilterController">
 		<div id="left-menu">
 			<fieldset>
-				<legend>Year</legend>
+				<legend>Years</legend>
 				<ul class="dates">
 					<li ng-repeat="y in years" ng-class="{active: y === startYear}"><a ng-click="filter('year', y);">{{ y }}</a></li>
 					<li class="last"></li>
 				</ul>
 			</fieldset>
 			<fieldset>
-				<legend>Month</legend>
+				<legend>Months</legend>
 				<ul class="dates">
 					<li ng-repeat="m in months" ng-class="{active: m === startMonth}"><a ng-click="filter('month', m);">{{ m }}</a></li>
 					<li class="last"></li>
@@ -30,7 +30,7 @@
 				<legend>Domains</legend>
 				<ul class="entries">
 					<li ng-repeat="d in domains| limitTo:domainsLimit" ng-if="d.id === 0 || d.id === domain || domain === 0" ng-class="{active: d.id === domain}">
-						<a ng-click="filter('domain', d.id);">{{ d.domain }} ({{ d.hits|formatMultiple }} hits)</a>
+						<a ng-click="filter('domain', d.id);" title="{{ d.domain }}">{{ d.domain }}</a><code title="{{ d.hits }} hits">{{ d.hits|formatMultiple }}</code>
 					</li>
 					<li ng-if="domains.length > defaultLimit">
 						<a ng-click="more('domain');"><span ng-if="domainsLimit === defaultLimit">More...</span><span ng-if="domainsLimit !== defaultLimit">Less...</span></a>
@@ -41,7 +41,7 @@
 				<legend>Directories</legend>
 				<ul class="entries">
 					<li ng-repeat="d in directories| limitTo:directoriesLimit" ng-if="d.id === 0 || d.id === directory || directory === 0" ng-class="{active: d.id === directory}">
-						<a ng-click="filter('directory', d.id);">{{ d.directory.indexOf('/botsector-') === 0 ? '**' + d.directory.substring(11).replace('-', ' ') + '**' : d.directory }} ({{ d.hits|formatMultiple }} hits)</a>
+						<a ng-click="filter('directory', d.id);" title="{{ d.directory }}">{{ d.directory.indexOf('/botsector-') === 0 ? '**' + d.directory.substring(11).replace('-', ' ') + '**' : d.directory }}</a><code title="{{ d.hits }} hits">{{ d.hits|formatMultiple }}</code>
 					</li>
 					<li ng-if="directories.length > defaultLimit">
 						<a ng-click="more('directory');"><span ng-if="directoriesLimit === defaultLimit">More...</span><span ng-if="directoriesLimit !== defaultLimit">Less...</span></a>
@@ -52,8 +52,7 @@
 				<legend>Crawlers</legend>
 				<ul class="entries">
 					<li ng-repeat="c in crawlers| limitTo:crawlersLimit" ng-if="c.id === 0 || crawler > 0 && c.id === crawler || crawler < 0 || crawler === 0" ng-class="{active: c.id === crawler, striked: crawler < 0 && -c.id === crawler}">
-						<a ng-click="filter('crawler', c.id);">{{ c.name }} ({{ c.hits|formatMultiple }} hits)</a>
-						<a ng-click="filter('crawler', -c.id)" ng-if="c.ignore === true">&times;</a>
+						<a ng-click="filter('crawler', c.id);" title="{{ c.name }}">{{ c.name }}<span ng-click="filter('negative')" ng-if="c.ignore === true"> &times;</span></a><code title="{{ c.hits }} hits">{{ c.hits|formatMultiple }}</code>
 					</li>
 					<li ng-if="crawlers.length > defaultLimit">
 						<a ng-click="more('crawler');"><span ng-if="crawlersLimit === defaultLimit">More...</span><span ng-if="crawlersLimit !== defaultLimit">Less...</span></a>
@@ -64,7 +63,7 @@
 				<legend>Types</legend>
 				<ul class="entries">
 					<li ng-repeat="t in types" ng-if="t.id === 0 || t.id === type || type === 0 && t.hits > 0" ng-class="{active: t.id === type}">
-						<a ng-click="filter('type', t.id);">{{ t.name }} ({{ t.hits|formatMultiple }} hits)</a>
+						<a ng-click="filter('type', t.id);" title="{{ t.name }}">{{ t.name }}</a><code title="{{ t.hits }} hits">{{ t.hits|formatMultiple }}</code>
 					</li>
 				</ul>
 			</fieldset>
@@ -84,14 +83,22 @@
 					{{ e.error }}
 				</li>
 			</ul>
-			Top bots: by hits
-			<div id="chart-topBots"></div>
-			File types: by hits
-			<div id="chart-fileTypes"></div>
-			Bots vs browsers: by hits
-			<div id="chart-botsVsBrowsersHits"></div>
-			Bots vs browsers: by bandwidth (MB)
-			<div id="chart-botsVsBrowsersBandwidth"></div>
+			<fieldset>
+				<legend>Top bots: by hits</legend>
+				<div id="chart-topBots"></div>
+			</fieldset>
+			<fieldset>
+				<legend>File types: by hits</legend>
+				<div id="chart-fileTypes"></div>
+			</fieldset>
+			<fieldset>
+				<legend>Bots vs browsers: by hits</legend>
+				<div id="chart-botsVsBrowsersHits"></div>
+			</fieldset>
+			<fieldset>
+				<legend>Bots vs browsers: by bandwidth (MB)</legend>
+				<div id="chart-botsVsBrowsersBandwidth"></div>
+			</fieldset>
 		</div>
 	</body>
 </html>

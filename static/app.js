@@ -17,7 +17,7 @@ botsectorApp.filter('formatMultiple', function () {
 			number = number / 1000;
 			suffix = 'G';
 		}
-		if (number < 10)
+		if (number < 10 && suffix)
 		{
 			return number.toFixed(2) + suffix;
 		}
@@ -61,6 +61,8 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 
 		$scope.graphs = {topBots: true, fileTypes: true, botsVsBrowsersHits: true, botsVsBrowsersBandwidth: true};
 		$scope.charts = [];
+
+		$scope.negativeFilter = false;
 
 		$scope.defaultLimit = 15;
 
@@ -128,7 +130,7 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 
 		/* Update lists of entries */
 		$scope.update = function () {
-			var query = '&year=' + $scope.startYear + '&month=' + $scope.startMonth + '&domain=' + $scope.domain + '&directory=' + $scope.directory + '&crawler=' + $scope.crawler + '&type=' + $scope.type;
+			var query = '&year=' + $scope.startYear + '&domain=' + $scope.domain + '&directory=' + $scope.directory + '&crawler=' + $scope.crawler + '&type=' + $scope.type;
 			$http.get('./dispatcher.php?action=domains' + query).success(function (data) {
 				if ($scope.check(data))
 				{
@@ -174,8 +176,17 @@ botsectorApp.controller('FilterController', ['$scope', '$http', function ($scope
 		/* Apply filters */
 		$scope.filter = function (type, value)
 		{
+			if ($scope.negativeFilter)
+			{
+				value = -1 * value;
+				$scope.negativeFilter = false;
+			}
 			switch (type)
 			{
+				case 'negative':
+					$scope.negativeFilter = true;
+					break;
+
 				case 'year':
 					$scope.startYear = $scope.endYear = value;
 					$http.get('./dispatcher.php?action=months&year=' + $scope.startYear).success(function (data) {

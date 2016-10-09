@@ -30,10 +30,6 @@ class Config
 			self::loadClass('Debug_Time');
 			self::loadClass('Debug_RegExp');
 		}
-		elseif (isset($_SERVER['BOTSECTORDEMO']))
-		{
-			$configFile = __DIR__.'/../../config/demo.ini.php';
-		}
 		self::$config = parse_ini_file($configFile, true);
 
 		if (self::$config === false)

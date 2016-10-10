@@ -18,3 +18,7 @@ database =
 [security]
 user = demo
 password = demo
+
+; DO NOT TOUCH THOSE LINES PLEASE!
+[internal]
+version = 0.0

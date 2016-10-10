@@ -11,6 +11,10 @@ Config::loadClass('Database');
 class BotSector
 {
 
+	/** @var string $version Current version number */
+	const version = '0.1';
+
+	/* Internal constants */
 	const browsers = 1;
 	const unknownBots = 2;
 	const realBrowsers = 3;
@@ -53,6 +57,101 @@ class BotSector
 		$this->db = Database::getInstance();
 
 		return true;
+	}
+
+	/**
+	 * Update database and crawlers' definition
+	 */
+	public function update()
+	{
+		$currentVersion = Config::get('internal', 'version');
+		if ($currentVersion === self::version)
+		{
+			return true;
+		}
+		if (substr($currentVersion, 0, strpos($currentVersion, '.')) !== substr(self::version, 0, strpos(self::version, '.')))
+		{
+			throw new Exception('Major version upgrade not handled for now...');
+		}
+		$nextVersion = explode('.', $currentVersion);
+		$nextVersion[1] ++;
+		$nextVersion = implode('.', $nextVersion);
+		/* Install/update database */
+		$databaseScript = __DIR__.'/../resources/schema-'.$currentVersion.'-'.$nextVersion.'.sql';
+		if (file_exists($databaseScript))
+		{
+			foreach (file($databaseScript) as $sql)
+			{
+				$sql = trim($sql);
+				if (substr($sql, -1) === ';')
+				{
+					$sql = substr($sql, 0, -1);
+				}
+				if (!empty($sql))
+				{
+					try
+					{
+						$result = $this->db->insert($sql);
+					}
+					catch (Exception $ex)
+					{
+						$result = false;
+					}
+					if ($result === false)
+					{
+						throw new Exception('Updating database failed.<br/>You may not have sufficient privileges (ALTER, CREATE, INDEX...) with the current user.<br/>Step #1: manually run the script: resources/schema-'.$currentVersion.'-'.$nextVersion.'.sql<br/>Step #2: run the bots\' script: resources/bots.sql<br/>Step #3: update your config.ini.php, by changing the [internal].version to '.$nextVersion.'<br/>Step #4: reload this page!');
+					}
+				}
+			}
+		}
+		/* Update bots' definitions */
+		$botsScript = __DIR__.'/../resources/bots.sql';
+		foreach (file($botsScript) as $sql)
+		{
+			$sql = trim($sql);
+			if (substr($sql, -1) === ';')
+			{
+				$sql = substr($sql, 0, -1);
+			}
+			if (!empty($sql))
+			{
+				if ($this->db->insert($sql) === false)
+				{
+					throw new Exception('Updating bots failed...');
+				}
+			}
+		}
+
+		/* Store the new version number */
+		Config::set('internal', 'version', $nextVersion);
+
+		/* Run the next update if any */
+		return $this->update();
+	}
+
+	public function exportBots()
+	{
+		if (Config::$development !== true)
+		{
+			throw new Exception('Can\'t export bots in production environment, sorry');
+		}
+
+		$f = fopen(__DIR__.'/../resources/bots.sql', 'w');
+		foreach ($this->db->select('SELECT * FROM BOTSECTOR_CRAWLERS') as $bot)
+		{
+			fwrite($f, 'INSERT INTO BOTSECTOR_CRAWLERS (BCR_ID, BCR_NAME, BCR_SIGNATURE, BCR_WEBSITE) VALUES (');
+			fwrite($f, (int) $bot['BCR_ID'].', ');
+			fwrite($f, '\''.$this->db->escape($bot['BCR_NAME']).'\', ');
+			fwrite($f, '\''.$this->db->escape($bot['BCR_SIGNATURE']).'\', ');
+			fwrite($f, '\''.$this->db->escape($bot['BCR_WEBSITE']).'\')');
+			fwrite($f, ' ON DUPLICATE KEY UPDATE ');
+			fwrite($f, 'BCR_NAME = \''.$this->db->escape($bot['BCR_NAME']).'\', ');
+			fwrite($f, 'BCR_SIGNATURE = \''.$this->db->escape($bot['BCR_SIGNATURE']).'\', ');
+			fwrite($f, 'BCR_WEBSITE = \''.$this->db->escape($bot['BCR_WEBSITE']).'\'');
+			fwrite($f, ";\n");
+		}
+		fclose($f);
+		echo 'Done';
 	}
 
 	public function getFilters($type, $year, $month, $parameters)
@@ -503,7 +602,7 @@ class BotSector
 			return array('status' => $file['status'], 'time' => 0, 'files' => 0);
 		}
 
-		if (Config::development !== true)
+		if (Config::$development !== true)
 		{
 			$this->db->bind('ID', $file['id']);
 			$this->db->update('UPDATE BOTSECTOR_LOGS SET BLG_STATUS = \'PARSING\', BLG_STARTED = NOW() WHERE BLG_ID = :ID');
@@ -526,7 +625,7 @@ class BotSector
 			$f = fopen($file['path'], 'r');
 		}
 		$totalLines = 0;
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$microtime = -1 * microtime(true);
 		}
@@ -630,7 +729,7 @@ class BotSector
 		fclose($f);
 		unset($knownDates);
 
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$microtime += microtime(true);
 			echo '<br/>Lines: <strong>'.$totalLines.' - '.ceil($totalLines / $microtime).'/s</strong>';
@@ -641,7 +740,7 @@ class BotSector
 		}
 
 		$inserts = 0;
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$microtime = -1 * microtime(true);
 		}
@@ -670,7 +769,7 @@ class BotSector
 		$this->db->commit();
 
 		$this->removedDirectories = array();
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$microtime += microtime(true);
 			echo '<br/>Inserts: <strong>'.$inserts.' - '.ceil($inserts / $microtime).'/s</strong>';
@@ -785,12 +884,12 @@ class BotSector
 			return $ua[$userAgent];
 		}
 		$isBot = preg_match('~(?:bot|spider|crawl|rss|feed|https?://|\.(?:com|ly|net|org|us)/)~i', $userAgent) === 1;
-		if (Config::development === false && $isBot === true)
+		if (Config::$development === false && $isBot === true)
 		{
 			$userAgents[$initialUserAgent] = self::unknownBots;
 			return self::unknownBots;
 		}
-		elseif (Config::development === true)
+		elseif (Config::$development === true)
 		{
 			if (!isset($unknownBrowsers[$userAgent]))
 			{
@@ -1023,7 +1122,7 @@ class BotSector
 			}
 			else
 			{
-				if (Config::development === true)
+				if (Config::$development === true)
 				{
 					if (!isset($unknownExtension[$extension]))
 					{

@@ -35,7 +35,7 @@ class Database
 		$this->connection->real_connect(Config::get('database', 'host'), Config::get('database', 'user'), Config::get('database', 'password'), Config::get('database', 'database'));
 		if (mysqli_connect_errno() !== 0)
 		{
-			if (Config::development === true)
+			if (Config::$development === true)
 			{
 				throw new Exception('Can\'t connect to MySQL server, check your parameters: '.$this->connection->error);
 			}
@@ -47,6 +47,11 @@ class Database
 			return false;
 		}
 		return $this->connection;
+	}
+
+	public function escape($value)
+	{
+		return $this->getConnection()->real_escape_string($value);
 	}
 
 	/**
@@ -135,19 +140,19 @@ class Database
 
 		$this->prepare($query);
 
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$time = -1 * microtime(true);
 		}
 		$resource = $connection->query($query);
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$time += microtime(true);
 		}
 
 		if ($resource === false)
 		{
-			if (Config::development === true)
+			if (Config::$development === true)
 			{
 				$debug = debug_backtrace(false);
 				trigger_error('SELECT query failed: '.$connection->error.', '.$query.', in '.$debug[0]['file'].'@'.$debug[0]['line']);
@@ -187,7 +192,7 @@ class Database
 		}
 		$resource->close();
 
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$this->explain($query, $connection, $time);
 		}
@@ -216,7 +221,7 @@ class Database
 		$resource = $connection->query($query);
 		if ($resource === false)
 		{
-			if (Config::development === true)
+			if (Config::$development === true)
 			{
 				trigger_error('INSERT query failed: '.$connection->error.', '.$query);
 			}
@@ -254,19 +259,19 @@ class Database
 
 		$this->prepare($query);
 
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$time = -1 * microtime(true);
 		}
 		$resource = $connection->query($query);
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$time += microtime(true);
 		}
 
 		if ($resource === false)
 		{
-			if (Config::development === true)
+			if (Config::$development === true)
 			{
 				trigger_error('UPDATE query failed: '.$connection->error.', query: '.$query);
 			}
@@ -281,7 +286,7 @@ class Database
 		$this->binds = array();
 		$affected = $connection->affected_rows;
 
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$this->explain($query, $connection, $time);
 		}
@@ -305,19 +310,19 @@ class Database
 
 		$this->prepare($query);
 
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$time = -1 * microtime(true);
 		}
 		$resource = $connection->query($query);
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$time += microtime(true);
 		}
 
 		if ($resource === false)
 		{
-			if (Config::development === true)
+			if (Config::$development === true)
 			{
 				trigger_error('DELETE query failed '.$connection->error.', query: '.$query);
 			}
@@ -332,7 +337,7 @@ class Database
 		$this->binds = array();
 		$affected = $connection->affected_rows;
 
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			$this->explain($query, $connection, $time);
 		}
@@ -587,7 +592,7 @@ class Database
 			$this->debugVars[2] = false;
 			return;
 		}
-		if (Config::development === true)
+		if (Config::$development === true)
 		{
 			if (isset($_SERVER['REQUEST_URI']))
 			{
@@ -600,7 +605,7 @@ class Database
 		}
 		else
 		{
-			trigger_error('Debug oublié : '.$this->debugVars[1], E_USER_WARNING);
+			trigger_error('Forgot debug: '.$this->debugVars[1], E_USER_WARNING);
 		}
 		$this->debugVars[0] = (bool) $stop;
 		$this->debugVars[1] = '';

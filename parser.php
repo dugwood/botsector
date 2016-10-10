@@ -18,4 +18,11 @@ if (Config::$demo === true)
 }
 
 $botSector = new BotSector();
-echo json_encode($botSector->analyzeFile());
+try
+{
+	echo json_encode($botSector->analyzeFile());
+}
+catch (Exception $e)
+{
+	echo 'An error occurred: '.$e->getMessage();
+}

@@ -9,9 +9,7 @@ class Config
 {
 
 	private static $config = array();
-
-	const development = false;
-
+	public static $development = false;
 	public static $demo = false;
 
 	public static function init()
@@ -26,15 +24,18 @@ class Config
 		{
 			ini_set('display_errors', 1);
 			error_reporting(E_ALL | E_STRICT);
-			$configFile = __DIR__.'/../../config/dev.ini.php';
 			self::loadClass('Debug_Time');
 			self::loadClass('Debug_RegExp');
+		}
+		else
+		{
+			self::$development = false;
 		}
 		self::$config = parse_ini_file($configFile, true);
 
 		if (self::$config === false)
 		{
-			throw new Exception('Configuration file could not be read.');
+			throw new Exception('Configuration file could not be read (config/config.ini.php).');
 		}
 
 		if (empty(self::$config['security']['user']) || empty(self::$config['security']['password']))
@@ -64,6 +65,42 @@ class Config
 		return self::$config[$group][$variable];
 	}
 
+	public static function set($group, $variable, $value)
+	{
+		$configFile = __DIR__.'/../config/config.ini.php';
+		$config = file($configFile);
+		for ($line = 0; $line < count($config); $line ++)
+		{
+			/* Look for the group */
+			if (trim($config[$line]) === '['.$group.']')
+			{
+				break;
+			}
+		}
+		if ($line === count($config))
+		{
+			throw new Exception('Can\'t find group «'.$group.'» in configuration file (config/config.ini.php)');
+		}
+		for (; $line < count($config); $line ++)
+		{
+			/* Look for the variable */
+			if (strpos(trim($config[$line]), $variable.' =') === 0)
+			{
+				break;
+			}
+		}
+		if ($line === count($config))
+		{
+			throw new Exception('Can\'t find variable «'.$variable.'» in configuration file (config/config.ini.php)');
+		}
+		$config[$line] = $variable.' = '.$value;
+		if (file_put_contents($configFile, implode('', $config)) === false)
+		{
+			throw new Exception('Configuration file (config/config.ini.php) can\'t be written to.');
+		}
+		self::init();
+	}
+
 	public static function loadClass($class)
 	{
 		if (!class_exists($class, false))
@@ -75,7 +112,7 @@ class Config
 	public static function handleException($e)
 	{
 		echo 'Script ended because of an error: '.$e->getMessage();
-		if (self::development === true)
+		if (self::$development === true)
 		{
 			echo '<p>Time taken: <strong>'.(time() - $_SERVER['REQUEST_TIME']).' seconds</strong><br/>';
 			echo 'Memory peak usage: <strong>'.number_format(memory_get_peak_usage() / 1024 / 1024, 3).'MB</strong></p>';
